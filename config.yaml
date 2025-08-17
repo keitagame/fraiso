@@ -1,0 +1,64 @@
+# example.yml
+iso:
+  name: "myarch"
+  label: "MYARCH_UEFI"
+  version: "2025.08.17"
+  publisher: "Me <me@example.com>"
+  application: "My Arch Linux Live ISO"
+  install_dir: "arch"
+  uefi_only: true
+
+system:
+  hostname: "zen"
+  timezone: "Asia/Tokyo"
+  keymap: "jp106"
+  locale: "en_US.UTF-8"
+  locales:
+    - "en_US.UTF-8 UTF-8"
+    - "ja_JP.UTF-8 UTF-8"
+
+pacman:
+  mirrorlist: |
+    ## Custom mirrors
+    Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch
+    Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
+  append_conf: |
+    [multilib]
+    Include = /etc/pacman.d/mirrorlist
+
+packages:
+  - base
+  - base-devel
+  - linux
+  - linux-firmware
+  - networkmanager
+  - vim
+  - git
+  - btrfs-progs
+  - intel-ucode
+  - sudo
+  - openssh
+  - htop
+
+services:
+  - NetworkManager
+  - sshd
+
+users:
+  - name: "dev"
+    password_hash: "$6$rounds=50000$saltsalt$zQy8c0U9Y3gJmO8b5Jm9r2m7K1r3oS8kZ3xwO4H2bH0bNf7lC..." # mkpasswd -m sha-512
+    groups: "users,video,audio,storage"
+    sudo: true
+    ssh_authorized_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@example"
+
+files:
+  - src: "./motd"
+    dest: "/etc/motd"
+    mode: "0644"
+
+scripts:
+  - name: "tune"
+    inline: |
+      set -e
+      sed -i 's/^#Color/Color/' /etc/pacman.conf
+      systemctl enable fstrim.timer || true
