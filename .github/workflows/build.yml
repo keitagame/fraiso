@@ -20,7 +20,7 @@ jobs:
 
     - name: Clone releng profile
       run: |
-        chmod +x build.sh
+        chmod +x ./build.sh
         ./build.sh
 
     
