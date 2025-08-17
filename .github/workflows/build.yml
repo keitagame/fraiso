@@ -1,0 +1,31 @@
+# .github/workflows/build-archiso.yml
+name: Build Arch Linux ISO
+
+on:
+  push:
+    branches:
+      - main  # ← mainブランチにpushされたときに実行
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:latest
+
+    steps:
+    - name: Install dependencies
+      run: |
+        pacman -Syu --noconfirm
+        pacman -S --noconfirm archiso git
+
+    - name: Clone releng profile
+      run: |
+        chmod +x ./build.sh
+        ./build.sh
+
+    
+    - name: Upload ISO artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: archlinux-custom-iso
+        path: ~/archiso/myiso/out/*.iso
