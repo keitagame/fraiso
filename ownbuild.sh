@@ -49,10 +49,13 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 # chroot先で archiso パッケージをインストール
 
 # archisoパッケージ導入とHOOKS設定
+
 arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso
 sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
+
 arch-chroot "$AIROOTFS" mkinitcpio -P
+
 
 
 # root パスワード設定（例: "root"）
