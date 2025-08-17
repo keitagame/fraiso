@@ -33,6 +33,16 @@ en_US.UTF-8 UTF-8
 EOF
 arch-chroot "$AIROOTFS" locale-gen
 
+# chroot先で archiso パッケージをインストール
+arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso
+
+# mkinitcpio.conf を編集（HOOKSを上記に差し替え）
+arch-chroot "$AIROOTFS" sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso archiso_loop_mnt block filesystems keyboard fsck)/' /etc/mkinitcpio.conf
+
+# 新しい initramfs を生成
+arch-chroot "$AIROOTFS" mkinitcpio -P
+
+
 # root パスワード設定（例: "root"）
 echo "root:root" | arch-chroot "$AIROOTFS" chpasswd
 
@@ -72,8 +82,8 @@ EOF
 
 cat <<EOF | sudo tee mnt_esp/loader/entries/arch.conf
 title   MyArch Live (${ISO_VERSION})
-linux   /vmlinuz-linux
-initrd  /initramfs-linux.img
+linux   $ISO_ROOT/vmlinuz-linux
+initrd  $ISO_ROOT/initramfs-linux.img
 options archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
