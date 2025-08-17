@@ -25,7 +25,7 @@ jobs:
 
     
     - name: Upload ISO artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: archlinux-custom-iso
         path: ~/archiso/myiso/out/*.iso
