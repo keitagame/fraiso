@@ -4,7 +4,7 @@ name: Build Arch Linux ISO
 on:
   push:
     branches:
-      - main  # ← mainブランチにpushされたときに実行
+      -　main  # ← mainブランチにpushされたときに実行
 jobs:
   build-iso:
     runs-on: ubuntu-latest
