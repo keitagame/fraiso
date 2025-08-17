@@ -55,13 +55,17 @@ jobs:
             (cd out && sha256sum *.iso > SHA256SUMS.txt)
           fi
 
-      - name: Upload ISO artifact
-        if: success()
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: iso
-          path: |
+          tag_name: "v${{ github.run_number }}"
+          name: "ISO Build ${{ github.run_number }}"
+          body: |
+            自動ビルドしたArch LinuxカスタムISOです。
+            - GUIインストーラ搭載
+            - SHA256SUMS同梱
+          files: |
             out/*.iso
             out/SHA256SUMS.txt
-          compression-level: 0
-          if-no-files-found: error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
