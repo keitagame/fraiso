@@ -54,7 +54,8 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
-arch-chroot "$AIROOTFS" mkinitcpio -P
+arch-chroot "$AIROOTFS" mkinitcpio -P || true
+
 
 
 
