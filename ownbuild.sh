@@ -60,18 +60,7 @@ arch-chroot "$AIROOTFS" mkinitcpio -P || true
 
 
 
-cat > "$ISO_ROOT/isolinux/isolinux.cfg" <<EOF
-DEFAULT arch
-PROMPT 0
-TIMEOUT 50
-UI vesamenu.c32
 
-LABEL arch
-    MENU LABEL FrankOS Live (${ISO_VERSION})
-    LINUX /vmlinuz-linux
-    INITRD /initramfs-linux.img
-    APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
-EOF
 
 
 
