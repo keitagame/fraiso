@@ -54,6 +54,10 @@ jobs:
           if ls out/*.iso >/dev/null 2>&1; then
             (cd out && sha256sum *.iso > SHA256SUMS.txt)
           fi
+      - name: Create Tag
+        run: |
+          git tag v12
+          git push origin v12
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
