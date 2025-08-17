@@ -56,10 +56,7 @@ sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' 
 
 arch-chroot "$AIROOTFS" mkinitcpio -P || true
 
-# ===== BIOS用 ISOLINUX 準備 =====
-mkdir -p "$ISO_ROOT/isolinux"
-cp /usr/lib/syslinux/bios/isolinux.bin "$ISO_ROOT/isolinux/"
-cp /usr/lib/syslinux/bios/*.c32 "$ISO_ROOT/isolinux/"
+
 
 
 
@@ -142,10 +139,6 @@ xorriso -as mkisofs \
   -full-iso9660-filenames \
   -volid "${ISO_LABEL}" \
   -eltorito-alt-boot \
-  -eltorito-boot isolinux/isolinux.bin \
-    -eltorito-catalog isolinux/boot.cat \
-    -no-emul-boot -boot-load-size 4 -boot-info-table \
-  \
   -e efiboot.img \
   -no-emul-boot \
   -isohybrid-gpt-basdat \
