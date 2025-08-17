@@ -62,10 +62,10 @@ jobs:
           name: "ISO Build ${{ github.run_number }}"
           body: |
             自動ビルドしたArch LinuxカスタムISOです。
-            - GUIインストーラ搭載
+            - ブートは可能
             - SHA256SUMS同梱
           files: |
             out/*.iso
             out/SHA256SUMS.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
