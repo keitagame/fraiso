@@ -81,6 +81,10 @@ LABEL frankos
     APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
+arch-chroot "$AIROOTFS" pacman -S --noconfirm xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg
+arch-chroot "$AIROOTFS" pacman -S --noconfirm xorg
+arch-chroot "$AIROOTFS" systemctl enable lightdm
+
 
 # root パスワード設定（例: "root"）
 echo "root:root" | arch-chroot "$AIROOTFS" chpasswd
@@ -120,7 +124,7 @@ cp "$AIROOTFS/boot/initramfs-linux.img" mnt_esp/
 # loader.conf と arch.conf を配置
 mkdir -p mnt_esp/loader/entries
 cat <<EOF | sudo tee mnt_esp/loader/loader.conf
-default  arch
+default  frank
 timeout  3
 console-mode max
 editor   no
