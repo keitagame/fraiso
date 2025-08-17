@@ -1,28 +1,65 @@
-# .github/workflows/build-archiso.yml
-name: Build Arch Linux ISO
+name: Build ISO with build.sh (Arch)
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main  # ← mainブランチにpushされたときに実行
+    branches: [ main ]
+
 jobs:
-  build-iso:
+  build:
     runs-on: ubuntu-latest
 
-    container:
-      image: archlinux:latest
-
     steps:
-    - name: Install dependencies
-      run: |
-        pacman -Syu --noconfirm
-        pacman -S --noconfirm archiso git
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Clone releng profile
-      run: |
-        chmod +x ./build.sh
-        ./build.sh
-      working-directory: fraiso
+      - name: Prepare pacman cache dir
+        run: mkdir -p .cache/pacman
 
-    
-    
+      - name: Cache pacman packages
+        uses: actions/cache@v4
+        with:
+          path: .cache/pacman
+          key: pacman-${{ runner.os }}-${{ hashFiles('build.sh', '**/*.pkglist', '**/packages.*', '**/*.yaml', '**/*.yml') }}
+          restore-keys: |
+            pacman-${{ runner.os }}-
+
+      - name: Pull Arch container
+        run: docker pull archlinux:latest
+
+      - name: Run build.sh inside privileged Arch container
+        run: |
+          docker run --rm --privileged \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -v "${GITHUB_WORKSPACE}/.cache/pacman:/var/cache/pacman/pkg" \
+            -w /work \
+            archlinux:latest bash -lc '
+              set -euo pipefail
+              sed -i "s/^#ParallelDownloads.*/ParallelDownloads = 10/" /etc/pacman.conf
+              pacman -Sy --noconfirm archlinux-keyring
+              pacman -Syu --noconfirm
+              pacman -S --noconfirm \
+                archiso yq git sudo \
+                squashfs-tools xorriso dosfstools e2fsprogs \
+                systemd mkinitcpio
+              chmod +x ./build.sh
+              ./build.sh
+            '
+
+      - name: Generate checksums
+        if: always()
+        run: |
+          if ls out/*.iso >/dev/null 2>&1; then
+            (cd out && sha256sum *.iso > SHA256SUMS.txt)
+          fi
+
+      - name: Upload ISO artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso
+          path: |
+            out/*.iso
+            out/SHA256SUMS.txt
+          compression-level: 0
+          if-no-files-found: error
