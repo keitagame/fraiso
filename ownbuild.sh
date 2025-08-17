@@ -23,7 +23,7 @@ mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
-pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager
+pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso
 
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
@@ -50,7 +50,7 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
 # archisoパッケージ導入とHOOKS設定
 
-arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso
+
 sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
