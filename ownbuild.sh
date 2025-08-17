@@ -23,7 +23,7 @@ mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
-pacstrap -c  "$AIROOTFS" base linux linux-firmware vim networkmanager
+pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager
 
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
