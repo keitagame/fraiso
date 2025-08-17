@@ -52,7 +52,7 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso mkinitcpio
 
 arch-chroot "$AIROOTFS" bash -c '
-  sed -i "s/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems)/" /etc/mkinitcpio.conf
+  sed -i "s/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboard block filesystems)/" /etc/mkinitcpio.conf
 '
 
 
