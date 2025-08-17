@@ -37,7 +37,7 @@ jobs:
             -w /work \
             archlinux:latest bash -lc '
               set -euo pipefail
-              sed -i "s/^#ParallelDownloads.*/ParallelDownloads = 10/" /etc/pacman.conf
+              sed -i "s/^#ParallelDownloads.*/ParallelDownloads = 15/" /etc/pacman.conf
               pacman -Sy --noconfirm archlinux-keyring
               pacman -Syu --noconfirm
               pacman -S --noconfirm \
