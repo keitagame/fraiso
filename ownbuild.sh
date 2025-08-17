@@ -30,7 +30,6 @@ echo "[*] 基本設定を投入..."
 echo "myarch" > "$AIROOTFS/etc/hostname"
 cat <<EOF > "$AIROOTFS/etc/locale.gen"
 en_US.UTF-8 UTF-8
-ja_JP.UTF-8 UTF-8
 EOF
 arch-chroot "$AIROOTFS" locale-gen
 
