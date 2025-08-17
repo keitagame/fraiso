@@ -32,6 +32,9 @@ cat <<EOF > "$AIROOTFS/etc/locale.gen"
 en_US.UTF-8 UTF-8
 EOF
 arch-chroot "$AIROOTFS" locale-gen
+mkdir -p "$AIROOTFS/etc/pacman.d"
+cp /etc/pacman.conf "$AIROOTFS/etc/"
+cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
 # chroot先で archiso パッケージをインストール
 
