@@ -57,10 +57,10 @@ sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' 
 arch-chroot "$AIROOTFS" mkinitcpio -P || true
 
 # ===== BIOS用 ISOLINUX 準備 =====
-# BIOS用 ISOLINUX 準備
 mkdir -p "$ISO_ROOT/isolinux"
 cp /usr/lib/syslinux/bios/isolinux.bin "$ISO_ROOT/isolinux/"
 cp /usr/lib/syslinux/bios/*.c32 "$ISO_ROOT/isolinux/"
+
 
 
 cat > "$ISO_ROOT/isolinux/isolinux.cfg" <<EOF
