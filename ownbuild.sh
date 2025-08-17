@@ -37,11 +37,7 @@ cat <<EOF > "$AIROOTFS/etc/locale.gen"
 en_US.UTF-8 UTF-8
 EOF
 
-mount --bind /proc "$AIROOTFS/proc"
-mount --bind /sys "$AIROOTFS/sys"
-mount --bind /dev "$AIROOTFS/dev"
-mount --bind /run "$AIROOTFS/run"
-mount --bind /dev/pts "$AIROOTFS/dev/pts"
+
 
 arch-chroot "$AIROOTFS" locale-gen
 mkdir -p "$AIROOTFS/etc/pacman.d"
@@ -55,20 +51,6 @@ done
 # chroot先で archiso パッケージをインストール
 
 # archisoパッケージ導入とHOOKS設定
-arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso mkinitcpio
-
-arch-chroot "$AIROOTFS" bash -c '
-  sed -i "s/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboard block filesystems)/" /etc/mkinitcpio.conf
-'
-
-arch-chroot "$AIROOTFS" bash -c '
-  sed -i "s/^#\?COMPRESSION=.*/COMPRESSION=\"zstd\"/" /etc/mkinitcpio.conf
-  sed -i "s/^#\?COMPRESSION_OPTIONS=.*/COMPRESSION_OPTIONS=(-T0 -3)/" /etc/mkinitcpio.conf
-'
-
-
-# initramfs再生成
-arch-chroot "$AIROOTFS" mkinitcpio -P
 
 
 # root パスワード設定（例: "root"）
