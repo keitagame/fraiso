@@ -40,6 +40,8 @@ jobs:
               sed -i "s/^#ParallelDownloads.*/ParallelDownloads = 15/" /etc/pacman.conf
               pacman -Sy --noconfirm archlinux-keyring
               pacman -Syu --noconfirm
+              pacman -S --noconfirm syslinux
+
               pacman -S --noconfirm \
                 archiso yq git sudo \
                 squashfs-tools xorriso dosfstools e2fsprogs \
