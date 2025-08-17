@@ -28,6 +28,11 @@ pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
 echo "myarch" > "$AIROOTFS/etc/hostname"
+cat <<EOF > "$AIROOTFS/etc/vconsole.conf"
+KEYMAP=us
+FONT=Lat2-Terminus16
+EOF
+
 cat <<EOF > "$AIROOTFS/etc/locale.gen"
 en_US.UTF-8 UTF-8
 EOF
