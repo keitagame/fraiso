@@ -44,9 +44,7 @@ mkdir -p "$AIROOTFS/etc/pacman.d"
 cp /etc/pacman.conf "$AIROOTFS/etc/"
 cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
-for d in proc sys dev run dev/pts; do
-    mount --bind /$d "$AIROOTFS/$d"
-done
+
 
 # chroot先で archiso パッケージをインストール
 
