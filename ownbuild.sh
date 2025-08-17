@@ -40,6 +40,8 @@ EOF
 mount --bind /proc "$AIROOTFS/proc"
 mount --bind /sys "$AIROOTFS/sys"
 mount --bind /dev "$AIROOTFS/dev"
+mount --bind /run "$AIROOTFS/run"
+mount --bind /dev/pts "$AIROOTFS/dev/pts"
 
 arch-chroot "$AIROOTFS" locale-gen
 mkdir -p "$AIROOTFS/etc/pacman.d"
