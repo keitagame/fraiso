@@ -42,8 +42,8 @@ jobs:
                 archiso yq git sudo \
                 squashfs-tools xorriso dosfstools e2fsprogs \
                 systemd mkinitcpio
-              chmod +x ./build.sh
-              ./build.sh
+              chmod +x ./ownbuild.sh
+              ./ownbuild.sh
             '
 
       - name: Generate checksums
