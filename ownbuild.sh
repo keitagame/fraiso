@@ -31,6 +31,11 @@ echo "myarch" > "$AIROOTFS/etc/hostname"
 cat <<EOF > "$AIROOTFS/etc/locale.gen"
 en_US.UTF-8 UTF-8
 EOF
+
+mount --bind /proc "$AIROOTFS/proc"
+mount --bind /sys "$AIROOTFS/sys"
+mount --bind /dev "$AIROOTFS/dev"
+
 arch-chroot "$AIROOTFS" locale-gen
 mkdir -p "$AIROOTFS/etc/pacman.d"
 cp /etc/pacman.conf "$AIROOTFS/etc/"
@@ -39,7 +44,7 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 # chroot先で archiso パッケージをインストール
 
 # archisoパッケージ導入とHOOKS設定
-arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso
+arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso mkinitcpio
 
 arch-chroot "$AIROOTFS" bash -c "
   sed -i 's/^HOOKS=.*/HOOKS=(base udev modconf memdisk archiso archiso_loop_mnt archiso_pxe_common archiso_pxe_nbd archiso_pxe_http archiso_pxe_nfs archiso_kms block filesystems keyboard fsck)/' /etc/mkinitcpio.conf
