@@ -61,6 +61,10 @@ arch-chroot "$AIROOTFS" bash -c '
   sed -i "s/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboard block filesystems)/" /etc/mkinitcpio.conf
 '
 
+arch-chroot "$AIROOTFS" bash -c '
+  sed -i "s/^#\?COMPRESSION=.*/COMPRESSION=\"zstd\"/" /etc/mkinitcpio.conf
+  sed -i "s/^#\?COMPRESSION_OPTIONS=.*/COMPRESSION_OPTIONS=(-T0 -3)/" /etc/mkinitcpio.conf
+'
 
 
 # initramfs再生成
@@ -80,7 +84,9 @@ echo "Welcome to MyArch Live!" > "$AIROOTFS/root/README.txt"
 # ===== squashfs 作成 =====
 echo "[*] squashfs イメージ作成..."
 mkdir -p "$ISO_ROOT/arch"
-mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/rootfs.sfs" -comp xz
+mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/rootfs.sfs" \
+  -comp zstd -Xcompression-level 3 -processors 0
+
 
 # ===== ブートローダー構築 (systemd-boot UEFI) =====
 echo "[*] EFI ブートローダー準備..."
