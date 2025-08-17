@@ -3,7 +3,7 @@
 # YAMLでカスタム可能な Arch Linux ISO ビルドスクリプト（UEFI対応）
 # 依存: archiso, yq (v4), git（relengコピーが必要な場合）
 set -euo pipefail
-rm -rf work/ out/
+rm -rf work/ out/ mnt_esp/
 
 
 # ===== 設定 =====
@@ -61,7 +61,25 @@ arch-chroot "$AIROOTFS" mkinitcpio -P || true
 
 
 
+mkdir -p "$ISO_ROOT/isolinux"
+cp /usr/lib/syslinux/bios/isolinux.bin "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/ldlinux.c32 "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/menu.c32 "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/libcom32.c32 "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/libutil.c32 "$ISO_ROOT/isolinux/"
 
+cat <<EOF > "$ISO_ROOT/isolinux/isolinux.cfg"
+UI menu.c32
+PROMPT 0
+TIMEOUT 50
+DEFAULT frankos
+
+LABEL frankos
+    MENU LABEL Boot FrankOS Live (BIOS)
+    LINUX /vmlinuz-linux
+    INITRD /initramfs-linux.img
+    APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
+EOF
 
 
 # root パスワード設定（例: "root"）
@@ -97,7 +115,8 @@ sudo mount "$ISO_ROOT/efiboot.img" mnt_esp
 
 mkdir -p mnt_esp/EFI/BOOT
 cp /usr/lib/systemd/boot/efi/systemd-bootx64.efi mnt_esp/EFI/BOOT/BOOTX64.EFI
-
+cp "$AIROOTFS/boot/vmlinuz-linux" mnt_esp/
+cp "$AIROOTFS/boot/initramfs-linux.img" mnt_esp/
 # loader.conf と arch.conf を配置
 mkdir -p mnt_esp/loader/entries
 cat <<EOF | sudo tee mnt_esp/loader/loader.conf
@@ -114,7 +133,7 @@ initrd  /initramfs-linux.img
 options archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
-sudo umount mnt_esp
+sudo umount -l mnt_esp
 rmdir mnt_esp
 
 # カーネルと initramfs を ISOルートにコピー
@@ -124,6 +143,10 @@ cp "$AIROOTFS/boot/initramfs-linux.img" "$ISO_ROOT/"
 # ===== ISO 作成 =====
 echo "[*] ISO イメージ生成..."
 xorriso -as mkisofs \
+  -eltorito-boot isolinux/isolinux.bin \
+  -no-emul-boot \
+  -boot-load-size 4 \
+  -boot-info-table \
   -iso-level 3 \
   -full-iso9660-filenames \
   -volid "${ISO_LABEL}" \
