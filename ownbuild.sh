@@ -35,6 +35,15 @@ arch-chroot "$AIROOTFS" locale-gen
 
 # chroot先で archiso パッケージをインストール
 
+# archisoパッケージ導入とHOOKS設定
+arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso
+
+# mkinitcpio.confをarchiso用に置き換え
+arch-chroot "$AIROOTFS" bash -c \
+  'cp /usr/share/archiso/configs/releng/mkinitcpio.conf /etc/mkinitcpio.conf'
+
+# initramfs再生成
+arch-chroot "$AIROOTFS" mkinitcpio -P
 
 
 # root パスワード設定（例: "root"）
@@ -58,8 +67,13 @@ echo "[*] EFI ブートローダー準備..."
 dd if=/dev/zero of="$ISO_ROOT/efiboot.img" bs=1M count=200
 mkfs.vfat "$ISO_ROOT/efiboot.img"
 
+
 # 2. マウントしてファイルコピー
 mkdir mnt_esp
+
+cp "$AIROOTFS/boot/vmlinuz-linux" "mnt_esp/"
+cp "$AIROOTFS/boot/initramfs-linux.img" "mnt_esp/"
+# 2. マウントしてファイルコピー
 sudo mount "$ISO_ROOT/efiboot.img" mnt_esp
 
 mkdir -p mnt_esp/EFI/BOOT
@@ -75,9 +89,9 @@ editor   no
 EOF
 
 cat <<EOF | sudo tee mnt_esp/loader/entries/arch.conf
-title   MyArch Live (${ISO_VERSION})
-linux   $ISO_ROOT/vmlinuz-linux
-initrd  $ISO_ROOT/initramfs-linux.img
+title   FrankOS Live (${ISO_VERSION})
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
 options archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
