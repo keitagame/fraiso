@@ -41,9 +41,10 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 # archisoパッケージ導入とHOOKS設定
 arch-chroot "$AIROOTFS" pacman -Sy --noconfirm archiso
 
-# mkinitcpio.confをarchiso用に置き換え
-arch-chroot "$AIROOTFS" bash -c \
-  'cp /usr/share/archiso/configs/releng/mkinitcpio.conf /etc/mkinitcpio.conf'
+arch-chroot "$AIROOTFS" bash -c "
+  sed -i 's/^HOOKS=.*/HOOKS=(base udev modconf memdisk archiso archiso_loop_mnt archiso_pxe_common archiso_pxe_nbd archiso_pxe_http archiso_pxe_nfs archiso_kms block filesystems keyboard fsck)/' /etc/mkinitcpio.conf
+"
+
 
 # initramfs再生成
 arch-chroot "$AIROOTFS" mkinitcpio -P
