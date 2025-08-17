@@ -22,6 +22,7 @@ jobs:
       run: |
         chmod +x ./build.sh
         ./build.sh
+      working-directory: fraiso
 
     
     
