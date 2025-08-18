@@ -3,7 +3,7 @@
 # YAMLでカスタム可能な Arch Linux ISO ビルドスクリプト（UEFI対応）
 # 依存: archiso, yq (v4), git（relengコピーが必要な場合）
 set -euo pipefail
-rm -rf work/ out/ mnt_esp/
+
 
 
 # ===== 設定 =====
@@ -18,12 +18,14 @@ ARCH="x86_64"
 
 # ===== 前準備 =====
 echo "[*] 作業ディレクトリを初期化..."
+
+rm -rf work/ out/ mnt_esp/
 rm -rf "$WORKDIR" "$OUTPUT"
 mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
-pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso
+pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso
 
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
@@ -54,6 +56,8 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
+sed -i 's/^MODULES=.*/MODULES=(loop squashfs)/' "$AIROOTFS/etc/mkinitcpio.conf"
+
 arch-chroot "$AIROOTFS" mkinitcpio -P || true
 
 
@@ -78,8 +82,9 @@ LABEL frankos
     MENU LABEL Boot FrankOS Live (BIOS)
     LINUX /vmlinuz-linux
     INITRD /initramfs-linux.img
-    APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
+    APPEND archisobasedir=arch archisolabel=FRANK_LIVE
 EOF
+
 
 
 
@@ -96,8 +101,7 @@ echo "Welcome to MyArch Live!" > "$AIROOTFS/root/README.txt"
 # ===== squashfs 作成 =====
 echo "[*] squashfs イメージ作成..."
 mkdir -p "$ISO_ROOT/arch"
-mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/rootfs.sfs" \
-  -comp zstd -Xcompression-level 19
+mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/airootfs.sfs"  -comp xz -Xbcj x86
 
 
 # ===== ブートローダー構築 (systemd-boot UEFI) =====
@@ -131,7 +135,7 @@ cat <<EOF | sudo tee mnt_esp/loader/entries/arch.conf
 title   FrankOS Live (${ISO_VERSION})
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options archisobasedir=arch archisolabel=${ISO_LABEL}
+options archisobasedir=arch archisolabel=FRANK_LIVE
 EOF
 
 sudo umount -l mnt_esp
@@ -150,7 +154,7 @@ xorriso -as mkisofs \
   -boot-info-table \
   -iso-level 3 \
   -full-iso9660-filenames \
-  -volid "${ISO_LABEL}" \
+  -volid FRANK_LIVE \
   -eltorito-alt-boot \
   -e efiboot.img \
   -no-emul-boot \
