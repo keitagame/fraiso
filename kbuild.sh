@@ -56,7 +56,8 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
-echo 'MODULES=(loop squashfs)' >> $AIROOTFS/etc/mkinitcpio.conf
+sed -i 's/^MODULES=.*/MODULES=(loop squashfs)/' "$AIROOTFS/etc/mkinitcpio.conf"
+
 arch-chroot "$AIROOTFS" mkinitcpio -P || true
 
 
@@ -100,7 +101,7 @@ echo "Welcome to MyArch Live!" > "$AIROOTFS/root/README.txt"
 # ===== squashfs 作成 =====
 echo "[*] squashfs イメージ作成..."
 mkdir -p "$ISO_ROOT/arch"
-mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/rootfs.sfs"  -comp xz -Xbcj x86
+mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/airootfs.sfs"  -comp xz -Xbcj x86
 
 
 # ===== ブートローダー構築 (systemd-boot UEFI) =====
