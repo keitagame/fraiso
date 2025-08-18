@@ -18,14 +18,14 @@ ARCH="x86_64"
 
 # ===== 前準備 =====
 echo "[*] 作業ディレクトリを初期化..."
-umount  $AIROOTFS/var/cache/pacman/pkg
+
 rm -rf work/ out/ mnt_esp/
 rm -rf "$WORKDIR" "$OUTPUT"
 mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
-pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso
+pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso
 
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
@@ -40,7 +40,7 @@ en_US.UTF-8 UTF-8
 EOF
 
 
-arch-chroot "$AIROOTFS" sudo sed -i '/^CheckSpace/d' /etc/pacman.conf
+
 arch-chroot "$AIROOTFS" locale-gen
 mkdir -p "$AIROOTFS/etc/pacman.d"
 cp /etc/pacman.conf "$AIROOTFS/etc/"
@@ -49,12 +49,11 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
 
 # chroot先で archiso パッケージをインストール
-mount --bind /var/cache/pacman/pkg $AIROOTFS/var/cache/pacman/pkg
 
 # archisoパッケージ導入とHOOKS設定
 
 
-sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
+sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck mkinitcpio-archiso)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
 arch-chroot "$AIROOTFS" mkinitcpio -P || true
@@ -84,10 +83,8 @@ LABEL frankos
     APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
-arch-chroot "$AIROOTFS" pacman -S --noconfirm xorg-server xorg-xinit lxqt lightdm lightdm-gtk-greeter networkmanager
-arch-chroot "$AIROOTFS" pacman -S --noconfirm xorg
-arch-chroot "$AIROOTFS" systemctl enable lightdm
-arch-chroot "$AIROOTFS" systemctl enable sddm
+
+
 
 # root パスワード設定（例: "root"）
 echo "root:root" | arch-chroot "$AIROOTFS" chpasswd
