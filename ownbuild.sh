@@ -58,7 +58,7 @@ sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' 
 
 sed -i 's/^MODULES=.*/MODULES=(loop squashfs)/' "$AIROOTFS/etc/mkinitcpio.conf"
 
-arch-chroot "$AIROOTFS" mkinitcpio -P || true
+arch-chroot "$AIROOTFS" mkinitcpio -P 
 
 
 
