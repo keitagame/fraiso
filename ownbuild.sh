@@ -81,9 +81,6 @@ LABEL frankos
     APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
-arch-chroot "$AIROOTFS" pacman -S --noconfirm xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg
-arch-chroot "$AIROOTFS" pacman -S --noconfirm xorg
-arch-chroot "$AIROOTFS" systemctl enable lightdm
 
 
 # root パスワード設定（例: "root"）
