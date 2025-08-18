@@ -25,7 +25,7 @@ mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
-pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso
+pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso cinnamon gdm xorg-server xorg-xinit gvfs gvfs-smb network-manager-applet
 
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
@@ -46,6 +46,7 @@ mkdir -p "$AIROOTFS/etc/pacman.d"
 cp /etc/pacman.conf "$AIROOTFS/etc/"
 cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
+arch-chroot "$AIROOTFS" systemctl enable gdm
 
 
 # chroot先で archiso パッケージをインストール
@@ -98,7 +99,7 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
 
 # root パスワード設定（例: "root"）
-echo "root:root" | arch-chroot "$AIROOTFS" chpasswd
+echo "frank:frank" | arch-chroot "$AIROOTFS" chpasswd
 
 # systemdサービス有効化
 arch-chroot "$AIROOTFS" systemctl enable NetworkManager
