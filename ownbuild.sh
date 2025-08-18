@@ -85,6 +85,15 @@ LABEL frankos
     APPEND archisobasedir=arch archisolabel=FRANK_LIVE
 EOF
 
+# 鍵の初期化
+arch-chroot "$AIROOTFS" pacman-key --init
+arch-chroot "$AIROOTFS" pacman-key --populate archlinux
+
+# pacman DBの初期化（念のため）
+arch-chroot "$AIROOTFS" pacman -Sy --noconfirm
+
+# 最新のmirrorlistをISOに組み込む
+cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
 
 
