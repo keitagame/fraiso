@@ -3,7 +3,7 @@
 # YAMLでカスタム可能な Arch Linux ISO ビルドスクリプト（UEFI対応）
 # 依存: archiso, yq (v4), git（relengコピーが必要な場合）
 set -euo pipefail
-rm -rf work/ out/ mnt_esp/
+
 
 
 # ===== 設定 =====
@@ -18,6 +18,8 @@ ARCH="x86_64"
 
 # ===== 前準備 =====
 echo "[*] 作業ディレクトリを初期化..."
+umount  $AIROOTFS/var/cache/pacman/pkg
+rm -rf work/ out/ mnt_esp/
 rm -rf "$WORKDIR" "$OUTPUT"
 mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
@@ -38,7 +40,7 @@ en_US.UTF-8 UTF-8
 EOF
 
 
-
+arch-chroot "$AIROOTFS" sudo sed -i '/^CheckSpace/d' /etc/pacman.conf
 arch-chroot "$AIROOTFS" locale-gen
 mkdir -p "$AIROOTFS/etc/pacman.d"
 cp /etc/pacman.conf "$AIROOTFS/etc/"
@@ -47,6 +49,7 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 
 
 # chroot先で archiso パッケージをインストール
+mount --bind /var/cache/pacman/pkg $AIROOTFS/var/cache/pacman/pkg
 
 # archisoパッケージ導入とHOOKS設定
 
@@ -64,6 +67,9 @@ arch-chroot "$AIROOTFS" mkinitcpio -P || true
 mkdir -p "$ISO_ROOT/isolinux"
 cp /usr/lib/syslinux/bios/isolinux.bin "$ISO_ROOT/isolinux/"
 cp /usr/lib/syslinux/bios/ldlinux.c32 "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/menu.c32 "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/libcom32.c32 "$ISO_ROOT/isolinux/"
+cp /usr/lib/syslinux/bios/libutil.c32 "$ISO_ROOT/isolinux/"
 
 cat <<EOF > "$ISO_ROOT/isolinux/isolinux.cfg"
 UI menu.c32
@@ -78,6 +84,10 @@ LABEL frankos
     APPEND archisobasedir=arch archisolabel=${ISO_LABEL}
 EOF
 
+arch-chroot "$AIROOTFS" pacman -S --noconfirm xorg-server xorg-xinit lxqt lightdm lightdm-gtk-greeter networkmanager
+arch-chroot "$AIROOTFS" pacman -S --noconfirm xorg
+arch-chroot "$AIROOTFS" systemctl enable lightdm
+arch-chroot "$AIROOTFS" systemctl enable sddm
 
 # root パスワード設定（例: "root"）
 echo "root:root" | arch-chroot "$AIROOTFS" chpasswd
@@ -93,7 +103,7 @@ echo "Welcome to MyArch Live!" > "$AIROOTFS/root/README.txt"
 echo "[*] squashfs イメージ作成..."
 mkdir -p "$ISO_ROOT/arch"
 mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/rootfs.sfs" \
-  -comp zstd -Xcompression-level 1
+  -comp zstd -Xcompression-level 19
 
 
 # ===== ブートローダー構築 (systemd-boot UEFI) =====
@@ -117,7 +127,7 @@ cp "$AIROOTFS/boot/initramfs-linux.img" mnt_esp/
 # loader.conf と arch.conf を配置
 mkdir -p mnt_esp/loader/entries
 cat <<EOF | sudo tee mnt_esp/loader/loader.conf
-default  arch
+default  frank
 timeout  3
 console-mode max
 editor   no
