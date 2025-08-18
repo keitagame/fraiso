@@ -53,7 +53,7 @@ cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
 # archisoパッケージ導入とHOOKS設定
 
 
-sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck mkinitcpio-archiso )/' \
+sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
 echo 'MODULES=(loop squashfs)' >> $AIROOTFS/etc/mkinitcpio.conf
