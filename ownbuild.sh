@@ -29,7 +29,7 @@ pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkini
 
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
-echo "myarch" > "$AIROOTFS/etc/hostname"
+echo "keita" > "$AIROOTFS/etc/hostname"
 cat <<EOF > "$AIROOTFS/etc/vconsole.conf"
 KEYMAP=us
 FONT=Lat2-Terminus16
