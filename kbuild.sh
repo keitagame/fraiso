@@ -101,12 +101,23 @@ user-db:user
 system-db:local
 EOF
 
+
+
+
+
+
 # 2. 壁紙設定（通常用＋ダークテーマ用）
 mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
 cat <<'EOF' > "$AIROOTFS/etc/dconf/db/local.d/00-wallpaper"
 [org/cinnamon/desktop/background]
 picture-uri='file:///usr/share/backgrounds/gnome/image.png'
 picture-uri-dark='file:///usr/share/backgrounds/gnome/image.png'
+
+[org/cinnamon/desktop/interface]
+gtk-theme='Mint-Y-Dark'
+icon-theme='Papirus-Dark'
+cursor-theme='Bibata-Modern-Ice'
+
 EOF
 
 # 3. 壁紙ファイルを配置（パーミッションは644）
