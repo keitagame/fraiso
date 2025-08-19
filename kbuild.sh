@@ -42,21 +42,10 @@ EOF
 
 mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
 
-cat <<'EOF' > "$AIROOTFS/etc/dconf/db/local.d/10-theme"
-[org/cinnamon/desktop/interface]
-gtk-theme='Mint-Y-Dark'
-icon-theme='Papirus-Dark'
-cursor-theme='Bibata-Modern-Ice'
-
-[org/cinnamon/theme]
-name='Mint-Y-Dark'
-EOF
 
 
-cat <<EOF > "$AIROOTFS/etc/dconf/db/local.d/05-language"
-[org/cinnamon/desktop/interface]
-gtk-im-module='ibus'
-EOF
+
+
 arch-chroot "$AIROOTFS" locale-gen
 mkdir -p "$AIROOTFS/etc/pacman.d"
 cp /etc/pacman.conf "$AIROOTFS/etc/"
@@ -72,20 +61,26 @@ sed -i 's/^#autologin-session=.*/autologin-session=cinnamon/' "$AIROOTFS/etc/lig
 
 # archisoパッケージ導入とHOOKS設定
 mkdir -p "$AIROOTFS/usr/share/backgrounds/gnome"
-cp image.png "$AIROOTFS/usr/share/backgrounds/gnome/"
+
+
+mkdir -p "$AIROOTFS/etc/dconf/profile"
+cat <<'EOF' > "$AIROOTFS/etc/dconf/profile/user"
+user-db:user
+system-db:local
+EOF
+
+# 2. 壁紙設定（通常用＋ダークテーマ用）
 mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
-cat <<EOF > "$AIROOTFS/etc/dconf/db/local.d/00-wallpaper"
+cat <<'EOF' > "$AIROOTFS/etc/dconf/db/local.d/00-wallpaper"
 [org/cinnamon/desktop/background]
 picture-uri='file:///usr/share/backgrounds/gnome/image.png'
+picture-uri-dark='file:///usr/share/backgrounds/gnome/image.png'
 EOF
 
+# 3. 壁紙ファイルを配置（パーミッションは644）
+install -m 644 image.png "$AIROOTFS/usr/share/backgrounds/gnome/image.png"
 
-mkdir -p "$AIROOTFS/etc/profile.d"
-cat <<'EOF' > "$AIROOTFS/etc/profile.d/fcitx5.sh"
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
-EOF
+
 mkdir -p "$AIROOTFS/etc/skel/.config"
 cat <<EOF > "$AIROOTFS/etc/skel/.config/user-dirs.locale"
 ja_JP
