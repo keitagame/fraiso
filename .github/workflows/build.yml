@@ -1,4 +1,4 @@
-name: Build ISO with build.sh (Arch)
+name: ビルド確認
 
 on:
   workflow_dispatch:
