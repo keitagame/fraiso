@@ -41,12 +41,18 @@ ja_JP.UTF-8 UTF-8
 EOF
 
 mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
-cat <<EOF > "$AIROOTFS/etc/dconf/db/local.d/01-cinnamon"
+
+cat <<'EOF' > "$AIROOTFS/etc/dconf/db/local.d/10-theme"
 [org/cinnamon/desktop/interface]
-gtk-theme='Arc-Dark'
-icon-theme='Papirus'
-cursor-theme='Adwaita'
+gtk-theme='Mint-Y-Dark'
+icon-theme='Papirus-Dark'
+cursor-theme='Bibata-Modern-Ice'
+
+[org/cinnamon/theme]
+name='Mint-Y-Dark'
 EOF
+
+
 cat <<EOF > "$AIROOTFS/etc/dconf/db/local.d/05-language"
 [org/cinnamon/desktop/interface]
 gtk-im-module='ibus'
