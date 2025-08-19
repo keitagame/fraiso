@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # build-archiso.sh
-# YAMLでカスタム可能な Arch Linux ISO ビルドスクリプト（UEFI対応）
-# 依存: archiso, yq (v4), git（relengコピーが必要な場合）
 set -euo pipefail
 
 
