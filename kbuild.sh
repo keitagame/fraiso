@@ -43,6 +43,13 @@ EOF
 mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
 
 
+
+arch-chroot "$AIROOTFS" locale-gen
+mkdir -p "$AIROOTFS/etc/pacman.d"
+cp /etc/pacman.conf "$AIROOTFS/etc/"
+cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
+echo "LANG=ja_JP.UTF-8" > "$AIROOTFS/etc/locale.conf"
+
 # 前提: $AIROOTFS にルートFSが展開済み（archiso/自作ビルダ想定）
 # 実行: ホスト側からこのブロックを一気に流し込む
 arch-chroot "$AIROOTFS" bash -euxo pipefail <<'CHROOT'
@@ -78,15 +85,6 @@ rm -rf /home/aur/build /home/aur/.cache
 yes | pacman -Scc
 
 CHROOT
-
-
-
-arch-chroot "$AIROOTFS" locale-gen
-mkdir -p "$AIROOTFS/etc/pacman.d"
-cp /etc/pacman.conf "$AIROOTFS/etc/"
-cp /etc/pacman.d/mirrorlist "$AIROOTFS/etc/pacman.d/"
-echo "LANG=ja_JP.UTF-8" > "$AIROOTFS/etc/locale.conf"
-
 
 mkdir -p "$AIROOTFS/etc/lightdm"
 sed -i 's/^#autologin-user=.*/autologin-user=root/' "$AIROOTFS/etc/lightdm/lightdm.conf"
