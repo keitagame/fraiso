@@ -43,6 +43,42 @@ EOF
 mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
 
 
+# 前提: $AIROOTFS にルートFSが展開済み（archiso/自作ビルダ想定）
+# 実行: ホスト側からこのブロックを一気に流し込む
+arch-chroot "$AIROOTFS" bash -euxo pipefail <<'CHROOT'
+# 1) ベース整備（非対話・必要最小限）
+pacman -Syu --noconfirm --needed base-devel git sudo go
+
+# 並列ビルドの有効化（任意・高速化）
+sed -i 's/^#MAKEFLAGS=.*/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
+
+# 2) AUR用ビルドユーザー
+useradd -m -G wheel aur
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/99_aur_nopasswd
+chmod 440 /etc/sudoers.d/99_aur_nopasswd
+
+# 3) yay のビルド（高速な yay-bin 推奨）
+#    go のコンパイルを避けたい場合は yay-bin、ソースからなら yay を選択
+su - aur -c '
+  set -euxo pipefail
+  mkdir -p ~/build && cd ~/build
+  git clone https://aur.archlinux.org/yay-bin.git
+  cd yay-bin
+  makepkg -si --noconfirm --needed
+'
+
+# 4) mint-themes をインストール（非対話）
+#    yay は依存関係を自動解決。--noconfirm で問答無用インストール。
+su - aur -c '
+  set -euxo pipefail
+  yay -S --noconfirm --needed mint-themes
+'
+
+# 5) 片付け（ISOサイズ削減）
+rm -rf /home/aur/build /home/aur/.cache
+yes | pacman -Scc
+
+CHROOT
 
 
 
