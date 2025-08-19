@@ -46,8 +46,8 @@ jobs:
                 archiso yq git sudo \
                 squashfs-tools xorriso dosfstools e2fsprogs \
                 systemd mkinitcpio
-              chmod +x ./ownbuild.sh
-              ./ownbuild.sh
+              chmod +x ./kbuild.sh
+              ./kbuild.sh
             '
       - run: sudo chown -R $USER:$USER out
 
