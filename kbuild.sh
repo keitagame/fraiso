@@ -96,6 +96,9 @@ arch-chroot "$AIROOTFS" systemctl set-default graphical.target
 arch-chroot "$AIROOTFS" systemctl enable lightdm
 
 arch-chroot "$AIROOTFS" dconf update
+mkdir -p "$AIROOTFS/etc/skel/.config/dconf"
+dconf dump / | dconf compile user.d /etc/skel/.config/dconf/user
+
 sed -i 's/^HOOKS=.*/HOOKS=(base udev archiso block filesystems keyboard fsck)/' \
     "$AIROOTFS/etc/mkinitcpio.conf"
 
