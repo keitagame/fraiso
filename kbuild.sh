@@ -25,7 +25,7 @@ mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
-pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso cinnamon lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xorg-server noto-fonts noto-fonts-cjk noto-fonts-emoji fcitx5-im fcitx5-mozc fcitx5-configtool papirus-icon-theme eog
+pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso cinnamon lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xorg-server noto-fonts noto-fonts-cjk git sudo go noto-fonts-emoji fcitx5-im fcitx5-mozc fcitx5-configtool papirus-icon-theme eog
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
 echo "keita" > "$AIROOTFS/etc/hostname"
@@ -47,7 +47,6 @@ mkdir -p "$AIROOTFS/etc/dconf/db/local.d"
 # 実行: ホスト側からこのブロックを一気に流し込む
 arch-chroot "$AIROOTFS" bash -euxo pipefail <<'CHROOT'
 # 1) ベース整備（非対話・必要最小限）
-pacman -Syu --noconfirm --needed base-devel git sudo go
 
 # 並列ビルドの有効化（任意・高速化）
 sed -i 's/^#MAKEFLAGS=.*/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
