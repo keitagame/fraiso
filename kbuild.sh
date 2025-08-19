@@ -89,10 +89,13 @@ su - aur -c '
   set -euxo pipefail
   yay -S --noconfirm --needed mint-themes
 '
+su - aur -c 'yay -S --noconfirm --needed calamares-git'
 
 # 5) 片付け（ISOサイズ削減）
 rm -rf /home/aur/build /home/aur/.cache
 yes | pacman -Scc || true
+userdel -r aur || true
+
 
 CHROOT
 
@@ -101,6 +104,24 @@ sed -i 's/^#autologin-user=.*/autologin-user=root/' "$AIROOTFS/etc/lightdm/light
 sed -i 's/^#autologin-session=.*/autologin-session=cinnamon/' "$AIROOTFS/etc/lightdm/lightdm.conf"
 
 # chroot先で archiso パッケージをインストール
+mkdir -p /etc/calamares
+mkdir -p "$AIROOTFS/etc/calamares/modules"
+
+# settings.conf の例
+cat <<EOF > "$AIROOTFS/etc/calamares/settings.conf"
+---
+modules-search:
+  - /etc/calamares/modules
+sequence:
+  - showWelcome
+  - locale
+  - keyboard
+  - partition
+  - users
+  - summary
+  - install
+  - finished
+EOF
 
 # archisoパッケージ導入とHOOKS設定
 mkdir -p "$AIROOTFS/usr/share/backgrounds/gnome"
@@ -138,6 +159,19 @@ install -m 644 image.png "$AIROOTFS/usr/share/backgrounds/gnome/image.png"
 mkdir -p "$AIROOTFS/etc/skel/.config"
 cat <<EOF > "$AIROOTFS/etc/skel/.config/user-dirs.locale"
 ja_JP
+EOF
+
+
+mkdir -p "$AIROOTFS/etc/skel/.config/autostart"
+
+cat <<EOF > "$AIROOTFS/etc/skel/.config/autostart/calamares.desktop"
+[Desktop Entry]
+Type=Application
+Name=Calamares Installer
+Exec=sudo calamares
+Icon=system-installer
+Terminal=false
+Categories=System;
 EOF
 
 
