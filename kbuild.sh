@@ -25,6 +25,17 @@ mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
 
 # ===== ベースシステム作成 =====
 echo "[*] ベースシステムを pacstrap でインストール..."
+AIROOTFS_IMG="$WORKDIR/airootfs.img"
+AIROOTFS_MOUNT="$WORKDIR/airootfs"
+
+# 8GB の空き容量を確保
+truncate -s 8G "$AIROOTFS_IMG"
+mkfs.ext4 "$AIROOTFS_IMG"
+
+# マウント
+mkdir -p "$AIROOTFS_MOUNT"
+mount -o loop "$AIROOTFS_IMG" "$AIROOTFS_MOUNT"
+AIROOTFS="$AIROOTFS_MOUNT"
 pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso cinnamon lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xorg-server noto-fonts noto-fonts-cjk base-devel fakeroot debugedit git sudo go noto-fonts-emoji fcitx5-im fcitx5-mozc fcitx5-configtool papirus-icon-theme eog
 # ===== 設定ファイル追加 =====
 echo "[*] 基本設定を投入..."
@@ -236,6 +247,11 @@ rmdir mnt_esp
 # カーネルと initramfs を ISOルートにコピー
 cp "$AIROOTFS/boot/vmlinuz-linux" "$ISO_ROOT/"
 cp "$AIROOTFS/boot/initramfs-linux.img" "$ISO_ROOT/"
+# アンマウント
+sudo umount -l "$AIROOTFS"
+
+# loop デバイスの解放（必要なら）
+losetup -D
 
 # ===== ISO 作成 =====
 echo "[*] ISO イメージ生成..."
