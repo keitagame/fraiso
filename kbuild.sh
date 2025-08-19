@@ -81,7 +81,7 @@ su - aur -c '
 
 # 5) 片付け（ISOサイズ削減）
 rm -rf /home/aur/build /home/aur/.cache
-yes | pacman -Scc
+yes | pacman -Scc || true
 
 CHROOT
 
