@@ -51,11 +51,4 @@ jobs:
             '
       - run: sudo chown -R $USER:$USER out
 
-      - name: Generate checksums
-        if: always()
-        
-        run: |
-          if ls out/*.iso >/dev/null 2>&1; then
-            (cd out && sha256sum *.iso > SHA256SUMS.txt)
-          fi
-      - THUB_TOKEN }}
+      
