@@ -282,6 +282,7 @@ arch-chroot "$AIROOTFS" mkinitcpio -P
 
 
 
+arch-chroot "$AIROOTFS" systemctl enable dbus.service
 
 
 
