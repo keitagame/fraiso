@@ -111,7 +111,7 @@ sed -i 's/^#autologin-session=.*/autologin-session=cinnamon/' "$AIROOTFS/etc/lig
 # ホスト側から Calamares バイナリと関連ファイルをコピー
 mkdir -p "$AIROOTFS/usr/bin"
 cp installer "$AIROOTFS/usr/bin/"
-
+cp frankin "$AIROOTFS/usr/bin/"
 # 必要なライブラリもコピー（lddで依存確認）
 
 
