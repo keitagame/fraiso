@@ -94,7 +94,7 @@ su - aur -c '
   set -euxo pipefail
   yay -S --noconfirm --needed mint-themes
 '
-su - aur -c 'yay -S --noconfirm --needed calamares-git'
+
 
 # 5) 片付け（ISOサイズ削減）
 rm -rf /home/aur/build /home/aur/.cache
@@ -108,112 +108,17 @@ mkdir -p "$AIROOTFS/etc/lightdm"
 sed -i 's/^#autologin-user=.*/autologin-user=root/' "$AIROOTFS/etc/lightdm/lightdm.conf"
 sed -i 's/^#autologin-session=.*/autologin-session=cinnamon/' "$AIROOTFS/etc/lightdm/lightdm.conf"
 
+# ホスト側から Calamares バイナリと関連ファイルをコピー
+mkdir -p "$AIROOTFS/usr/bin"
+cp installer "$AIROOTFS/usr/bin/"
+
+# 必要なライブラリもコピー（lddで依存確認）
+
+
 # chroot先で archiso パッケージをインストール
-mkdir -p /etc/calamares
-mkdir -p "$AIROOTFS/etc/calamares/modules"
-#!/bin/bash
 
-MODULE_DIR="$AIROOTFS/etc/calamares/modules"
-
-mkdir -p "$MODULE_DIR"
-
-# welcome.yaml
-cat <<EOF > "$MODULE_DIR/welcome.yaml"
----
-type: "job"
-interface: "qt"
-name: "welcome"
-config:
-  showSupportUrl: false
-  showKnownIssuesUrl: false
-  showReleaseNotesUrl: false
-EOF
-
-# locale.yaml
-cat <<EOF > "$MODULE_DIR/locale.yaml"
----
-type: "job"
-interface: "qt"
-name: "locale"
-config:
-  defaultLocale: "ja_JP.UTF-8"
-  zone: "Asia/Tokyo"
-EOF
-
-# keyboard.yaml
-cat <<EOF > "$MODULE_DIR/keyboard.yaml"
----
-type: "job"
-interface: "qt"
-name: "keyboard"
-config:
-  defaultLayout: "jp"
-  defaultVariant: ""
-EOF
-
-# users.yaml
-cat <<EOF > "$MODULE_DIR/users.yaml"
----
-type: "job"
-interface: "qt"
-name: "users"
-config:
-  allowEmptyPassword: false
-  setPasswordForRoot: true
-EOF
-
-# partition.yaml
-cat <<EOF > "$MODULE_DIR/partition.yaml"
----
-type: "job"
-interface: "qt"
-name: "partition"
-config:
-  allowManualPartitioning: true
-  defaultFileSystemType: "ext4"
-  initialPartitioningChoice: "erase"
-EOF
-
-# install.yaml
-cat <<EOF > "$MODULE_DIR/install.yaml"
----
-type: "job"
-interface: "none"
-name: "install"
-config:
-  showInstallProgress: true
-EOF
-
-# finished.yaml
-cat <<EOF > "$MODULE_DIR/finished.yaml"
----
-type: "job"
-interface: "qt"
-name: "finished"
-config:
-  restartNowEnabled: true
-  restartNowChecked: true
-EOF
-
-echo "Calamares モジュールの作成が完了しました。"
 
 # settings.conf の例
-cat <<EOF > "$AIROOTFS/etc/calamares/settings.conf"
-branding: default
-show-splash: true
-dont-chroot: false
-modules-search:
-  - /etc/calamares/modules
-sequence:
-  - welcome
-  - locale
-  - keyboard
-  - partition
-  - users
-  - summary
-  - install
-  - finished
-EOF
 
 # archisoパッケージ導入とHOOKS設定
 mkdir -p "$AIROOTFS/usr/share/backgrounds/gnome"
@@ -282,6 +187,7 @@ arch-chroot "$AIROOTFS" mkinitcpio -P
 
 
 
+arch-chroot "$AIROOTFS" systemctl enable dbus.service
 
 
 
@@ -330,7 +236,7 @@ echo "Welcome to MyArch Live!" > "$AIROOTFS/root/README.txt"
 # ===== squashfs 作成 =====
 echo "[*] squashfs イメージ作成..."
 mkdir -p "$ISO_ROOT/arch/$ARCH"
-mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/$ARCH/airootfs.sfs"  -comp xz -Xbcj x86
+mksquashfs "$AIROOTFS" "$ISO_ROOT/arch/$ARCH/airootfs.sfs"  -comp gzip
 
 
 # ===== ブートローダー構築 (systemd-boot UEFI) =====
