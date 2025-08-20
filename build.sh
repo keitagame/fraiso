@@ -1,40 +1,3 @@
-#!/usr/bin/env bash
-# build-archiso.sh
-# YAMLでカスタム可能な Arch Linux ISO ビルドスクリプト（UEFI対応）
-# 依存: archiso, yq (v4), git（relengコピーが必要な場合）
-set -euo pipefail
-
-
-
-# ===== 設定 =====
-WORKDIR="$PWD/work"
-ISO_ROOT="$WORKDIR/iso"
-AIROOTFS="$WORKDIR/airootfs"
-ISO_NAME="frankos"
-ISO_LABEL="FRANK_LIVE"
-ISO_VERSION="$(date +%Y.%m.%d)"
-OUTPUT="$PWD/out"
-ARCH="x86_64"
-
-# ===== 前準備 =====
-echo "[*] 作業ディレクトリを初期化..."
-
-rm -rf work/ out/ mnt_esp/
-rm -rf "$WORKDIR" "$OUTPUT"
-mkdir -p "$AIROOTFS" "$ISO_ROOT" "$OUTPUT"
-
-# ===== ベースシステム作成 =====
-echo "[*] ベースシステムを pacstrap でインストール..."
-AIROOTFS_IMG="$WORKDIR/airootfs.img"
-AIROOTFS_MOUNT="$WORKDIR/airootfs"
-
-# 8GB の空き容量を確保
-truncate -s 8G "$AIROOTFS_IMG"
-mkfs.ext4 "$AIROOTFS_IMG"
-
-# マウント
-mkdir -p "$AIROOTFS_MOUNT"
-mount -o loop "$AIROOTFS_IMG" "$AIROOTFS_MOUNT"
 AIROOTFS="$AIROOTFS_MOUNT"
 pacstrap  "$AIROOTFS" base linux linux-firmware vim networkmanager archiso mkinitcpio-archiso cinnamon lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xorg-server noto-fonts noto-fonts-cjk base-devel fakeroot debugedit git sudo go noto-fonts-emoji fcitx5-im fcitx5-mozc fcitx5-configtool papirus-icon-theme eog alacritty
 
@@ -94,7 +57,7 @@ su - aur -c '
   set -euxo pipefail
   yay -S --noconfirm --needed mint-themes
 '
-su - aur -c 'yay -S --noconfirm --needed calamares-git'
+
 
 # 5) 片付け（ISOサイズ削減）
 rm -rf /home/aur/build /home/aur/.cache
@@ -107,6 +70,13 @@ CHROOT
 mkdir -p "$AIROOTFS/etc/lightdm"
 sed -i 's/^#autologin-user=.*/autologin-user=root/' "$AIROOTFS/etc/lightdm/lightdm.conf"
 sed -i 's/^#autologin-session=.*/autologin-session=cinnamon/' "$AIROOTFS/etc/lightdm/lightdm.conf"
+
+# ホスト側から Calamares バイナリと関連ファイルをコピー
+mkdir -p "$AIROOTFS/usr/bin"
+cp /usr/bin/calamares "$AIROOTFS/usr/bin/"
+
+# 必要なライブラリもコピー（lddで依存確認）
+ldd /usr/bin/calamares | awk '{print $3}' | xargs -I{} cp -v {} "$AIROOTFS/usr/lib/"
 
 # chroot先で archiso パッケージをインストール
 mkdir -p /etc/calamares
